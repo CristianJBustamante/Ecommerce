@@ -2,6 +2,8 @@ import { Router } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config.js';
+import { auth } from '../middleware/auth.js';
+import { UserDTO } from "../DTO/UsersDTO.js";
 
 export const router = Router();
 
@@ -21,6 +23,12 @@ router.post('/login', passport.authenticate('login', { session: false }), (req, 
 });
 
 // Ruta para obtener el usuario logueado
-router.get('/current', passport.authenticate('current', { session: false }), (req, res) => {
-    res.json({ user: req.user });
+router.get('/current', auth, (req, res) => {
+    try {
+        console.log("Usuario autenticado:", req.user);
+        const userDTO = new UserDTO(req.user); 
+        res.status(200).json(userDTO); 
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener datos del usuario' });
+    }
 });

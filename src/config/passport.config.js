@@ -1,8 +1,7 @@
-// /src/config/passport.config.js
 import passport from "passport";
 import local from "passport-local";
 import passportJWT from "passport-jwt";
-import { userModel } from "../dao/models/userModel.js";
+import { User } from "../models/userModel.js";
 import { generaHash, validaHash } from "../utils.js";
 import { config } from "./config.js";
 
@@ -35,14 +34,14 @@ export const startPassport = () => {
                     }
 
                     // Comprobar si el usuario ya existe
-                    const existeUsuario = await userModel.findOne({ email: username });
+                    const existeUsuario = await User.findOne({ email: username });
                     if (existeUsuario) {
                         return done(null, false, { message: "El usuario ya existe." });
                     }
 
                     // Crear un nuevo usuario
                     const hashPassword = generaHash(password); // Encriptar la contraseña
-                    const nuevoUsuario = await userModel.create({
+                    const nuevoUsuario = await User.create({
                         first_name,
                         last_name,
                         email: username,
@@ -65,7 +64,7 @@ export const startPassport = () => {
             { usernameField: "email" },
             async (username, password, done) => {
                 try {
-                    const usuario = await userModel.findOne({ email: username });
+                    const usuario = await User.findOne({ email: username });
                     if (!usuario) {
                         return done(null, false, { message: "Usuario no encontrado." });
                     }
@@ -93,21 +92,27 @@ export const startPassport = () => {
         "current",
         new passportJWT.Strategy(
             {
-                secretOrKey: config.SECRET, // Clave secreta para firmar/verificar el token
-                jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([buscarToken])
+                secretOrKey: config.SECRET,
+                jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([buscarToken]),
             },
             async (jwt_payload, done) => {
                 try {
-                    const usuario = await userModel.findById(jwt_payload.id);
+                    console.log("JWT Payload recibido:", jwt_payload); // Para verificar el contenido del token
+                    const usuario = await User.findById(jwt_payload.id); // Consulta a MongoDB
+    
                     if (!usuario) {
+                        console.log("Usuario no encontrado en la base de datos");
                         return done(null, false);
                     }
-
-                    return done(null, usuario);
+    
+                    console.log("Usuario encontrado en la base de datos:", usuario); // Depuración
+                    return done(null, usuario); // Pasa el usuario completo a req.user
                 } catch (error) {
-                    return done(error);
+                    console.error("Error en la estrategia JWT:", error);
+                    return done(error, false);
                 }
             }
         )
     );
+    
 };

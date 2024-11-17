@@ -1,4 +1,4 @@
-import { userModel } from "./models/userModel.js";
+import { userModel } from "../models/userModel.js";
 
 export class UserController{
     static async getBy(filtro={}){

@@ -6,7 +6,10 @@ import { config } from './config/config.js';
 import cookieParser from 'cookie-parser'; 
 import passport from 'passport'; 
 import { startPassport } from './config/passport.config.js'; 
-import { router as sessionsRouter } from './routers/sessionsRouter.js';
+import { router as sessionRouter } from './routers/sessionsRouter.js';
+import { router as productRouter } from './routers/productRouter.js';
+import { router as cartRouter } from './routers/cartsRouter.js';
+import { router as ticketRouter } from './routers/ticketRouter.js';
 
 const PORT = config.PORT;
 const app = express();
@@ -26,8 +29,11 @@ app.get('/', (req, res) => {
     res.status(200).send('OK');
 });
 
-// Rutas de sesiones
-app.use("/api/sessions", sessionsRouter);
+// Rutas 
+app.use('/api/products', productRouter);
+app.use('/api/carts', cartRouter);
+app.use('/api/tickets', ticketRouter);
+app.use('/api/sessions', sessionRouter);
 
 const server = app.listen(PORT, () => {
     console.log(`Server escuchando en puerto ${PORT}`);
