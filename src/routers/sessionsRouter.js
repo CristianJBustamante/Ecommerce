@@ -14,7 +14,7 @@ router.post('/register', passport.authenticate('registro', { session: false }), 
 
 // Ruta para login
 router.post('/login', passport.authenticate('login', { session: false }), (req, res) => {
-    const token = jwt.sign({ id: req.user._id }, config.SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: req.user._id }, config.SECRET, { expiresIn: '12h' });
 
     res.cookie('jwtToken', token, { httpOnly: true }).json({
         message: "Login exitoso",
@@ -25,7 +25,7 @@ router.post('/login', passport.authenticate('login', { session: false }), (req, 
 // Ruta para obtener el usuario logueado
 router.get('/current', auth, (req, res) => {
     try {
-        console.log("Usuario autenticado:", req.user);
+        // console.log("Usuario autenticado:", req.user);
         const userDTO = new UserDTO(req.user); 
         res.status(200).json(userDTO); 
     } catch (error) {
